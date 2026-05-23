@@ -65,25 +65,19 @@ const indicatorStyle = computed(() => ({
 
 <style scoped>
 .screen-indicator {
-    position: fixed;
-    z-index: 1000;
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: var(--screen-indicator-gap);
 }
 
 .screen-indicator--vertical {
-    top: 50%;
-    right: clamp(0.45rem, 1.6vw, 1.5rem);
     flex-direction: column;
-    transform: translateY(-50%);
 }
 
 .screen-indicator--horizontal {
-    bottom: clamp(0.45rem, 1.6vw, 1.5rem);
-    left: 50%;
     flex-direction: row;
-    transform: translateX(-50%);
 }
 
 .screen-indicator__dot {

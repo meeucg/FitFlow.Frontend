@@ -3,7 +3,8 @@
         :is="tag"
         ref="elementRef"
         class="split-text"
-        :style="{ textAlign }"
+        :class="{ 'split-text--visible': isVisible }"
+        :style="rootStyle"
     >
         <slot>{{ text }}</slot>
     </component>
@@ -53,6 +54,7 @@ const emit = defineEmits<{
 
 const elementRef = ref<HTMLElement | null>(null);
 const fontsLoaded = ref(false);
+const isVisible = ref(false);
 
 let splitInstance: SplitText | null = null;
 let currentTween: gsap.core.Tween | null = null;
@@ -60,6 +62,10 @@ let targets: Element[] = [];
 
 const textAlign = computed(() => props.textAlign);
 const shouldWaitForFonts = computed(() => props.splitType.includes('lines'));
+const rootStyle = computed(() => ({
+    textAlign: textAlign.value,
+    visibility: isVisible.value ? 'visible' : 'hidden',
+}));
 
 const toCssLength = (value: CssLength) => (
     typeof value === 'number' ? `${value}px` : value
@@ -133,6 +139,7 @@ const createSplit = async () => {
     targets = resolveTargets(splitInstance);
 
     gsap.set(targets, getFromVars());
+    element.style.visibility = 'hidden';
 
     return true;
 };
@@ -143,6 +150,15 @@ const animateIn = () => {
     }
 
     killTween();
+    const element = elementRef.value;
+
+    gsap.set(targets, getFromVars());
+
+    if (element) {
+        element.style.visibility = 'visible';
+    }
+
+    isVisible.value = true;
     currentTween = gsap.fromTo(
         targets,
         getFromVars(),
@@ -171,6 +187,10 @@ const animateOut = () => {
         stagger: props.delay / 2000,
         willChange: 'transform, opacity, filter',
         force3D: true,
+        onComplete: () => {
+            elementRef.value?.style.setProperty('visibility', 'hidden');
+            isVisible.value = false;
+        },
     });
 };
 
@@ -235,10 +255,15 @@ onBeforeUnmount(cleanupSplit);
 <style scoped>
 .split-text {
     display: inline-block;
+    visibility: hidden;
     overflow: hidden;
     white-space: normal;
     overflow-wrap: break-word;
     will-change: transform, opacity, filter;
+}
+
+.split-text--visible {
+    visibility: visible;
 }
 
 :deep(.split-line),

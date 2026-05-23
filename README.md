@@ -1,75 +1,122 @@
-# landing-test
+# FitFlow Frontend
 
-Scaffolded with Vuetify CLI.
+Vue 3 + Vite frontend for FitFlow, an AI-assisted freelance-order aggregator for designers.
 
-## ❗️ Documentation
+The app includes:
 
-- Primary docs: https://vuetifyjs.com/
-- Getting started guide: https://vuetifyjs.com/en/getting-started/installation/
-- Community support: https://community.vuetifyjs.com/
-- Issue tracker: https://issues.vuetifyjs.com/
+- landing page with animated three-screen presentation;
+- Keycloak authentication flow;
+- authenticated profile area with sidebar navigation;
+- interview flow connected to the backend API;
+- interview conclusion/profile summary UI;
+- Vuetify-based components and custom Styrene font assets.
 
-## 🧱 Stack
+## Stack
 
-- Framework: Vue 3 + Vite
-- UI Library: Vuetify
-- Language: TypeScript
-- Package manager: npm
+- Vue 3
+- Vite
+- TypeScript
+- Vuetify
+- Vue Router
+- Keycloak JS
+- vue3-perfect-scrollbar
+- GSAP
 
-## 🧭 Start Here
+## Requirements
 
-- Main entry: `src/main.ts`
-- Main app component: `src/App.vue`
-- Main styles: `src/styles/`
-- Plugin setup: `src/plugins/`
+- Node.js
+- npm
+- running Keycloak instance for authentication
+- running FitFlow API Gateway for profile/interview API calls
 
-## 📁 Project Structure
-
-- `src/main.ts` — application entry point
-- `src/App.vue` — root component
-- `src/components/` — reusable Vue components
-- `src/plugins/` — plugin registration and setup
-- `src/styles/` — global styles and theme settings
-- `public/` — static public files
-
-## ✨ Enabled Features
-
-- Base setup
-
-## 💿 Install
-
-Use your selected package manager (npm) to install dependencies:
+## Installation
 
 ```bash
 npm install
 ```
 
-## 🚀 Quick Start
+## Development
 
 ```bash
-npm install
 npm run dev
 ```
 
-## 🏗️ Build
+The dev script starts Vite on:
+
+```text
+http://127.0.0.1:5173
+```
+
+`vite.config.mts` also sets `server.allowedHosts: true` so temporary localhost tunnel domains can reach the dev server.
+
+## Environment Variables
+
+All variables are optional and have local defaults.
+
+```env
+VITE_KEYCLOAK_URL=http://localhost:8080
+VITE_KEYCLOAK_REALM=fitflow
+VITE_KEYCLOAK_CLIENT_ID=fitflow-spa
+VITE_API_BASE_URL=http://localhost:5266
+```
+
+## Routes
+
+- `/` - redirects to `/profile#profile` when authenticated, otherwise `/landing`
+- `/landing` - public landing page
+- `/profile#profile` - authenticated profile section
+- `/profile#settings` - authenticated settings placeholder
+- `/profile#feed` - authenticated feed section
+- `/interview` - authenticated interview flow
+
+## Auth Notes
+
+Keycloak is configured in `src/services/auth.ts`.
+
+Login redirects to:
+
+```text
+/profile#profile
+```
+
+Logout redirects to:
+
+```text
+/landing
+```
+
+Silent SSO uses:
+
+```text
+public/silent-check-sso.html
+```
+
+## Backend API
+
+The interview API layer lives in `src/services/interviewApi.ts`.
+
+Current endpoints:
+
+- `GET /me`
+- `GET /my-interview`
+- `POST /my-interview/answers`
+
+Requests use the current Keycloak access token as a Bearer token.
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run build-only
+npm run type-check
+```
+
+## Build
 
 ```bash
 npm run build
 ```
 
-## 🧪 Available Scripts
-
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
-- `npm run build-only`
-- `npm run type-check`
-
-## 💪 Support Vuetify Development
-
-This project uses Vuetify - an MIT licensed Open Source project. We are glad to welcome contributors and any support for ongoing development:
-
-- Contribute to Vuetify and ecosystem projects: https://github.com/vuetifyjs
-- Request enterprise support: https://support.vuetifyjs.com/
-- Sponsor on GitHub: https://github.com/sponsors/vuetifyjs
-- Support on Open Collective: https://opencollective.com/vuetify
+The production output is written to `dist/`.

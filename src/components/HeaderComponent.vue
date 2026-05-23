@@ -1,12 +1,17 @@
 <template>
     <div class="header-container">
-        <div
-            ref="headerBodyRef"
+        <RevealOnActive
+            tag="div"
             class="header-body"
-            :style="animateOnMount ? headerInitialStyle : undefined"
+            :active="true"
+            :appear="animateOnMount"
+            :y="-150"
+            :blur="4"
+            :duration="0.9"
+            ease="power3.out"
         >
-            <div class="logo-container">
-                <img src="../assets/logo.svg" class="logo"></img>
+            <button class="logo-container" type="button" aria-label="Открыть лендинг" @click="goLanding">
+                <img src="../assets/logo.svg" class="logo" alt="FitFlow logo">
                 <SplitText
                     tag="h3"
                     class="text"
@@ -15,85 +20,89 @@
                 >
                     fitflow.art
                 </SplitText>
-            </div>
+            </button>
+
             <div class="button-container">
-                <v-btn 
-                    variant="text" 
-                    color="black" 
-                    rounded="xl">
+                <v-btn
+                    variant="text"
+                    color="black"
+                    rounded="xl"
+                >
                     Отзывы
                 </v-btn>
-                <v-btn 
-                    variant="text" 
-                    color="black" 
-                    rounded="xl">
+
+                <v-btn
+                    variant="text"
+                    color="black"
+                    rounded="xl"
+                >
                     Как это работает?
                 </v-btn>
-                <v-btn 
-                    variant="text" 
-                    color="black" 
-                    rounded="xl">
+
+                <v-btn
+                    variant="text"
+                    color="black"
+                    rounded="xl"
+                >
                     Тарифы
                 </v-btn>
             </div>
+
             <div class="sign-in-container">
-                <v-btn 
-                variant="flat" 
-                color="black" 
-                rounded="xl"
-                class="form-button">
-                Вход
+                <v-btn
+                    v-if="!isAuthenticated"
+                    variant="flat"
+                    color="black"
+                    rounded="xl"
+                    class="form-button"
+                    @click="handleSignIn"
+                >
+                    Вход
+                </v-btn>
+
+                <v-btn
+                    v-else
+                    icon
+                    variant="flat"
+                    color="black"
+                    class="profile-button"
+                    aria-label="Открыть профиль"
+                    @click="goProfile"
+                >
+                    <img :src="profileIcon" class="profile-icon" alt="">
                 </v-btn>
             </div>
-        </div>
+        </RevealOnActive>
     </div>
 </template>
 
-<script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap } from 'gsap';
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import profileIcon from '@/assets/profile-icon.svg';
+import { isAuthenticated, login } from '@/services/auth';
+import RevealOnActive from './RevealOnActive.vue';
 import SplitText from './SplitText.vue';
 
-const props = defineProps({
+defineProps({
     animateOnMount: {
         type: Boolean,
         default: true,
     },
 });
 
-const headerBodyRef = ref(null);
-const headerEnterOffset = -150;
-const headerInitialStyle = {
-    opacity: 0,
-    transform: `translate3d(0, ${headerEnterOffset}px, 0)`,
-};
+const router = useRouter();
 
-let headerTween = null;
+function handleSignIn() {
+    void login();
+}
 
-onMounted(() => {
-    if (!props.animateOnMount || !headerBodyRef.value) {
-        return;
-    }
+function goLanding() {
+    void router.push({ name: 'landing' });
+}
 
-    headerTween = gsap.fromTo(
-        headerBodyRef.value,
-        {
-            opacity: 0,
-            y: headerEnterOffset,
-        },
-        {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-            ease: 'power3.out',
-            force3D: true,
-        },
-    );
-});
-
-onBeforeUnmount(() => {
-    headerTween?.kill();
-});
+function goProfile() {
+    void router.push({ name: 'profile', hash: '#profile' });
+}
 </script>
 
 <style scoped>
@@ -110,11 +119,12 @@ onBeforeUnmount(() => {
     height: calc(100% - 80px);
     margin-top: 40px;
     background: linear-gradient(
-        to right in oklch, 
-        white, 15%, 
+        to right in oklch,
+        white, 15%,
         rgba(255,255,255,0.8),
-         85%, 
-         white);
+        85%,
+        white
+    );
     box-sizing: border-box;
     border-radius: var(--header-container-height);
     backdrop-filter: blur(8px);
@@ -136,12 +146,16 @@ onBeforeUnmount(() => {
     justify-content: baseline;
     align-items: center;
     gap: 1rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
 }
 
 .logo {
     height: calc(100% - 1.6rem);
     aspect-ratio: 1;
-    background-color: red;
     border-radius: 100%;
 }
 
@@ -176,11 +190,34 @@ onBeforeUnmount(() => {
 }
 
 .form-button {
-  padding: 0 1.5rem 0 1.5rem;
-  transition: padding 0.2s ease-in-out;
+    padding: 0 1.5rem 0 1.5rem;
+    transition: padding 0.2s ease-in-out;
 }
 
 .form-button:hover {
-  padding: 0 2rem 0 2rem;
+    padding: 0 2rem 0 2rem;
+}
+
+.profile-button {
+    width: auto !important;
+    height: calc(100% - 1.6rem) !important;
+    min-width: 0 !important;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    padding: 0;
+    flex: 0 0 auto;
+}
+
+.profile-button :deep(.v-btn__content) {
+    width: 100%;
+    height: 100%;
+}
+
+.profile-icon {
+    width: 62%;
+    height: 62%;
+    display: block;
+    object-fit: contain;
+    filter: invert(1);
 }
 </style>

@@ -82,20 +82,26 @@
         </div>
             </section>
 
-            <section class="screen-section"></section>
-            <section class="screen-section"></section>
+            <section class="screen-section">
+                <HowItWorksScreen :active="animationScreen === 1" />
+            </section>
+            <section class="screen-section">
+                <PricingScreen :active="animationScreen === 2" />
+            </section>
         </div>
-        <ScreenIndicator
-            :count="screenCount"
-            :active-index="activeScreen"
-            :active-color="indicatorActiveColor"
-            :inactive-color="indicatorInactiveColor"
-            orientation="vertical"
-            spacing="1.1rem"
-            base-size="0.58rem"
-            :active-scale="1.64"
-            @select="setScreen"
-        />
+        <div class="screen-indicator-container">
+            <ScreenIndicator
+                :count="screenCount"
+                :active-index="activeScreen"
+                :active-color="indicatorActiveColor"
+                :inactive-color="indicatorInactiveColor"
+                orientation="vertical"
+                spacing="1.1rem"
+                base-size="0.58rem"
+                :active-scale="1.64"
+                @select="setScreen"
+            />
+        </div>
         
     </div>
 
@@ -107,15 +113,12 @@ import logoImage from '../assets/logo.png';
 import BottomLeftCard from './BottomLeftCard.vue';
 import BottomRightCard from './BottomRightCard.vue';
 import HeaderComponent from './HeaderComponent.vue';
+import HowItWorksScreen from './HowItWorksScreen.vue';
+import PricingScreen from './PricingScreen.vue';
 import RatingProof from './RatingProof.vue';
 import RevealOnActive from './RevealOnActive.vue';
 import ScreenIndicator from './ScreenIndicator.vue';
 import SplitText from './SplitText.vue';
-
-const viewportHeight = ref(1);
-const viewportWidth = ref(1);
-const activeScreen = ref(0);
-const animationScreen = ref(0);
 
 const maxScreenIndex = 2;
 const screenCount = maxScreenIndex + 1;
@@ -124,6 +127,22 @@ const transitionDuration = 900;
 const animationStartDelay = transitionDuration / 2;
 const inputCooldownDuration = 320;
 const wheelResetDelay = 140;
+
+const getInitialScreen = () => {
+    const requestedScreen = Number(new URLSearchParams(window.location.search).get('screen'));
+
+    if (!Number.isInteger(requestedScreen)) {
+        return 0;
+    }
+
+    return Math.min(Math.max(requestedScreen, 0), maxScreenIndex);
+};
+
+const initialScreen = getInitialScreen();
+const viewportHeight = ref(1);
+const viewportWidth = ref(1);
+const activeScreen = ref(initialScreen);
+const animationScreen = ref(initialScreen);
 
 const ratingProofPhotos = [
     logoImage,
@@ -330,6 +349,7 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
 }
 
 .button-container {
@@ -418,11 +438,21 @@ onBeforeUnmount(() => {
 
 .form-button {
   flex: 1;
-  /* padding: 0 2rem 0 2rem; */
+  padding: 0 2rem 0 2rem;
   transition: padding 0.2s ease-in-out;
 }
 
 .form-button:hover {
   padding: 0 3rem 0 3rem;
+}
+
+.screen-indicator-container {
+    position: fixed;
+    z-index: 1000;
+    top: 50%;
+    right: clamp(0.45rem, 1.6vw, 1.5rem);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
 }
 </style>
