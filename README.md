@@ -1,4 +1,4 @@
-# FitFlow Frontend
+# fit-flow-frontend
 
 Vue 3 + Vite frontend for FitFlow, an AI-assisted freelance-order aggregator for designers.
 
